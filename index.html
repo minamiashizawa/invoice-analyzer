@@ -116,7 +116,7 @@ footer { background: #1e293b; color: #94a3b8; text-align: center; padding: 24px;
         </div>
       </div>
       <div class="btn-row" style="margin-top:8px">
-        <button class="btn btn-green" onclick="fetchFreee()">🟢 Freeeから請求書を取得</button>
+        <button class="btn btn-green" id="fetchBtn" onclick="fetchFreee()" disabled>🟢 Freeeから請求書を取得</button>
       </div>
       <div class="status" id="freeeStatus"></div>
     </div>
@@ -225,6 +225,8 @@ window.addEventListener('load', () => {
     freeeAccessToken = params.get('access_token');
     document.getElementById('freeeLoginArea').style.display = 'none';
     document.getElementById('freeeLoggedIn').style.display = 'block';
+    // 請求書取得ボタンを有効化
+    document.getElementById('fetchBtn').disabled = false;
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 });

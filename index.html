@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InvoiceAI - 請求書解析ツール</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; min-height: 100vh; }
+
+/* NAV */
+nav {
+  background: white; border-bottom: 1px solid #e2e8f0;
+  padding: 0 32px; display: flex; align-items: center;
+  justify-content: space-between; height: 60px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.logo { font-size: 1.25rem; font-weight: 800; color: #1d4ed8; display: flex; align-items: center; gap: 8px; }
+.logo span { color: #1e293b; }
+.nav-links { display: flex; gap: 24px; }
+.nav-links a { font-size: 0.85rem; color: #64748b; text-decoration: none; font-weight: 500; }
+.nav-links a:hover { color: #1d4ed8; }
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #0ea5e9 100%);
+  color: white; padding: 60px 32px; text-align: center;
+}
+.hero h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 14px; line-height: 1.2; }
+.hero p { font-size: 1rem; opacity: 0.9; max-width: 520px; margin: 0 auto 28px; line-height: 1.7; }
+.hero-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.badge {
+  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 20px; padding: 5px 14px; font-size: 0.8rem;
+}
+
+/* MAIN */
+.main { max-width: 900px; margin: 0 auto; padding: 36px 16px 60px; }
+
+/* TABS */
+.tabs { display: flex; gap: 0; background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 28px; }
+.tab { flex: 1; padding: 14px; text-align: center; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #64748b; border-bottom: 3px solid transparent; transition: all 0.2s; background: none; border-top: none; border-left: none; border-right: none; }
+.tab.active { color: #1d4ed8; border-bottom-color: #1d4ed8; background: #eff6ff; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* CARDS */
+.card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-bottom: 18px; }
+.card-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; color: #1e293b; }
+.step-badge { background: #1d4ed8; color: white; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; }
+
+label { font-size: 0.82rem; color: #475569; font-weight: 600; display: block; margin-bottom: 4px; }
+input[type=text], input[type=password] {
+  width: 100%; padding: 10px 12px; border: 1.5px solid #e2e8f0;
+  border-radius: 8px; font-size: 0.88rem; outline: none; margin-bottom: 4px;
+}
+input:focus { border-color: #2563eb; }
+.hint { font-size: 0.74rem; color: #94a3b8; margin-bottom: 12px; }
+
+/* Upload */
+.upload-area {
+  border: 2px dashed #93c5fd; border-radius: 10px;
+  padding: 32px 20px; text-align: center; cursor: pointer;
+  transition: all 0.2s; background: #f8fafc;
+}
+.upload-area:hover, .upload-area.drag { border-color: #1d4ed8; background: #eff6ff; }
+.upload-ico { font-size: 2.6rem; margin-bottom: 8px; }
+.upload-area p { color: #475569; font-size: 0.88rem; }
+.upload-area small { color: #94a3b8; font-size: 0.76rem; }
+#fileInput { display: none; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.chip { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 20px; padding: 4px 12px; font-size: 0.79rem; color: #1d4ed8; display: flex; align-items: center; gap: 6px; }
+.chip .x { cursor: pointer; color: #ef4444; font-weight: bold; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 22px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.88rem; font-weight: 600; transition: all 0.2s; }
+.btn-blue { background: #1d4ed8; color: white; }
+.btn-blue:hover:not(:disabled) { background: #1e40af; }
+.btn-teal { background: #0d9488; color: white; }
+.btn-teal:hover:not(:disabled) { background: #0f766e; }
+.btn-lg { padding: 13px 28px; font-size: 0.95rem; width: 100%; justify-content: center; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.status { padding: 10px 14px; border-radius: 8px; font-size: 0.84rem; margin-top: 10px; display: none; }
+.status.info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; display: block; }
+.status.ok { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; display: block; }
+.status.err { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; display: block; }
+
+.loading { display: none; text-align: center; padding: 28px; }
+.spinner { width: 42px; height: 42px; border: 4px solid #bfdbfe; border-top-color: #1d4ed8; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+#loadingMsg { font-size: 0.86rem; color: #64748b; }
+.progress-bar { height: 4px; background: #e2e8f0; border-radius: 4px; margin-top: 12px; overflow: hidden; }
+.progress-fill { height: 100%; background: #1d4ed8; border-radius: 4px; transition: width 0.4s; }
+
+/* Results */
+.results { display: none; }
+.sec-title { font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: #1e293b; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.stat { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); text-align: center; border-top: 3px solid #1d4ed8; }
+.stat .l { font-size: 0.72rem; color: #64748b; margin-bottom: 4px; }
+.stat .v { font-size: 1.3rem; font-weight: 800; color: #1d4ed8; }
+.stat .s { font-size: 0.7rem; color: #94a3b8; margin-top: 2px; }
+
+.tbl-wrap { overflow-x: auto; background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-bottom: 20px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+th { background: #1d4ed8; color: white; padding: 11px 12px; text-align: left; white-space: nowrap; }
+td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #f8fafc; }
+.r { text-align: right; }
+.b { font-weight: 700; color: #1d4ed8; }
+
+.sheets-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: white; border: 1.5px solid #16a34a; color: #15803d;
+  border-radius: 8px; padding: 10px 18px; font-weight: 600;
+  font-size: 0.85rem; text-decoration: none; transition: all 0.2s; margin-top: 8px;
+}
+.sheets-link:hover { background: #f0fdf4; }
+
+/* Setup tab */
+.setup-step { display: flex; gap: 14px; margin-bottom: 18px; }
+.setup-num { background: #1d4ed8; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+.setup-body { flex: 1; }
+.setup-body p { font-size: 0.86rem; color: #475569; line-height: 1.6; margin-bottom: 8px; }
+.code-wrap { background: #0f172a; border-radius: 10px; padding: 16px; position: relative; }
+.code-wrap pre { color: #e2e8f0; font-family: monospace; font-size: 0.76rem; white-space: pre; overflow-x: auto; line-height: 1.6; }
+.copy-btn { position: absolute; top: 10px; right: 10px; background: #334155; color: #94a3b8; border: none; border-radius: 6px; padding: 4px 10px; font-size: 0.72rem; cursor: pointer; }
+.copy-btn:hover { background: #475569; color: white; }
+
+/* Footer */
+footer { background: #1e293b; color: #94a3b8; text-align: center; padding: 24px; font-size: 0.8rem; margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">📄 Invoice<span>AI</span></div>
+  <div class="nav-links">
+    <a href="#" onclick="showTab('analyze')">解析する</a>
+    <a href="#" onclick="showTab('setup')">設定方法</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>請求書を、AIが瞬時に解析<br>Google Sheetsへ自動書き込み</h1>
+  <p>PDFをアップロードするだけ。AIが金額・明細・日付を自動抽出し、スプレッドシートで比較・管理できます。</p>
+  <div class="hero-badges">
+    <div class="badge">🤖 AI自動抽出</div>
+    <div class="badge">📊 複数PDF対応</div>
+    <div class="badge">✅ Google Sheets連携</div>
+    <div class="badge">🆓 無料</div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('analyze')">🔍 解析する</button>
+    <button class="tab" onclick="showTab('setup')">⚙️ 初回設定</button>
+  </div>
+
+  <!-- ANALYZE TAB -->
+  <div class="tab-panel active" id="tab-analyze">
+
+    <div class="card">
+      <div class="card-title"><div class="step-badge">1</div> Apps Script URL</div>
+      <label>ウェブアプリのURL</label>
+      <input type="text" id="gasUrl" placeholder="https://script.google.com/macros/s/...">
+      <p class="hint">初回設定タブでスクリプトをデプロイして取得したURL</p>
+      <button class="btn btn-teal" onclick="testGAS()">🔗 接続テスト</button>
+      <div class="status" id="gasStatus"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="step-badge">2</div> 請求書PDFをアップロード</div>
+      <div class="upload-area" id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <div class="upload-ico">📂</div>
+        <p><strong>クリックまたはドラッグ＆ドロップ</strong></p>
+        <small>複数のPDFファイルに対応</small>
+        <input type="file" id="fileInput" accept=".pdf" multiple>
+      </div>
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="step-badge">3</div> 解析して書き込む</div>
+      <button class="btn btn-blue btn-lg" id="runBtn" disabled onclick="runAll()">
+        🚀 AIで解析 → Google Sheetsへ書き込む
+      </button>
+      <div class="status" id="mainStatus"></div>
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p id="loadingMsg">処理中...</p>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+
+    <div class="results" id="results">
+      <div class="sec-title">📊 解析結果サマリー</div>
+      <div class="stat-grid" id="statGrid"></div>
+
+      <div class="sec-title">📋 請求書比較一覧</div>
+      <div class="tbl-wrap">
+        <table><thead><tr>
+          <th>ファイル名</th><th>請求書番号</th><th>請求日</th><th>入金期日</th>
+          <th>発行元</th><th>小計</th><th>消費税</th><th>請求金額</th>
+        </tr></thead><tbody id="sumTbody"></tbody></table>
+      </div>
+
+      <div class="sec-title">📑 明細一覧</div>
+      <div class="tbl-wrap">
+        <table><thead><tr>
+          <th>請求書番号</th><th>請求日</th><th>取引日</th><th>摘要</th>
+          <th>数量</th><th>単価</th><th>金額</th>
+        </tr></thead><tbody id="detTbody"></tbody></table>
+      </div>
+
+      <a id="sheetsLink" class="sheets-link" href="https://sheets.google.com" target="_blank">
+        <img src="https://ssl.gstatic.com/docs/spreadsheets/favicon3.ico" width="16"> Google Sheetsで開く
+      </a>
+    </div>
+  </div>
+
+  <!-- SETUP TAB -->
+  <div class="tab-panel" id="tab-setup">
+    <div class="card">
+      <div class="card-title">⚙️ Google Sheetsへの接続設定（初回のみ）</div>
+
+      <div class="setup-step">
+        <div class="setup-num">1</div>
+        <div class="setup-body">
+          <p>Google Sheetsを開き、メニューから <strong>「拡張機能」→「Apps Script」</strong> を選択します。</p>
+        </div>
+      </div>
+
+      <div class="setup-step">
+        <div class="setup-num">2</div>
+        <div class="setup-body">
+          <p>以下のコードを全選択して貼り付け、<strong>Ctrl+S で保存</strong>します。</p>
+          <div class="code-wrap">
+            <button class="copy-btn" onclick="copyCode()">コピー</button>
+            <pre id="gasCode">function doPost(e) {
+  const data = JSON.parse(e.postData.contents);
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  let sumSheet = ss.getSheetByName("請求書サマリー")
+    || ss.insertSheet("請求書サマリー");
+  if (sumSheet.getLastRow() === 0) {
+    sumSheet.appendRow(["ファイル名","請求書番号","請求日","入金期日",
+      "発行元","宛先","小計","消費税","請求金額"]);
+  }
+
+  let detSheet = ss.getSheetByName("明細一覧")
+    || ss.insertSheet("明細一覧");
+  if (detSheet.getLastRow() === 0) {
+    detSheet.appendRow(["請求書番号","請求日","取引日",
+      "摘要","数量","単価","明細金額"]);
+  }
+
+  for (const inv of data.invoices) {
+    sumSheet.appendRow([
+      inv.filename, inv.invoice_number, inv.invoice_date,
+      inv.due_date, inv.issuer, inv.recipient,
+      inv.subtotal, inv.tax, inv.total
+    ]);
+    for (const item of inv.items) {
+      detSheet.appendRow([
+        inv.invoice_number, inv.invoice_date, item.date,
+        item.description, item.quantity, item.unit_price, item.amount
+      ]);
+    }
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify({status:"ok"}))
+    .setMimeType(ContentService.MimeType.JSON);
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-step">
+        <div class="setup-num">3</div>
+        <div class="setup-body">
+          <p><strong>「デプロイ」→「新しいデプロイ」</strong>をクリック。種類は「ウェブアプリ」、アクセスできるユーザーを<strong>「全員」</strong>に設定してデプロイします。</p>
+        </div>
+      </div>
+
+      <div class="setup-step">
+        <div class="setup-num">4</div>
+        <div class="setup-body">
+          <p>表示された<strong>「ウェブアプリのURL」</strong>をコピーして、「解析する」タブのURL欄に貼り付けます。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  InvoiceAI — PDFをアップロードするだけで請求書を自動解析・比較
+</footer>
+
+<script>
+let files = [], invoices = [];
+
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['analyze','setup'][i]===name));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+const dz = document.getElementById('dropZone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag'); addFiles(e.dataTransfer.files); });
+document.getElementById('fileInput').addEventListener('change', e => addFiles(e.target.files));
+
+function addFiles(fs) {
+  for (const f of fs) if (f.type==='application/pdf' && !files.find(x=>x.name===f.name)) files.push(f);
+  renderChips();
+}
+function removeFile(i) { files.splice(i,1); renderChips(); }
+function renderChips() {
+  document.getElementById('chips').innerHTML = files.map((f,i) =>
+    `<div class="chip">📄 ${f.name} <span class="x" onclick="removeFile(${i})">✕</span></div>`
+  ).join('');
+  document.getElementById('runBtn').disabled = files.length === 0;
+}
+
+function setStatus(id, msg, type) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.className = 'status '+type;
+}
+
+function copyCode() {
+  navigator.clipboard.writeText(document.getElementById('gasCode').textContent).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '✅ コピー済み';
+    setTimeout(() => btn.textContent = 'コピー', 2000);
+  });
+}
+
+async function testGAS() {
+  const url = document.getElementById('gasUrl').value.trim();
+  if (!url) { setStatus('gasStatus','URLを入力してください','err'); return; }
+  setStatus('gasStatus','接続確認中...','info');
+  try {
+    const r = await fetch(url, { method:'POST', body: JSON.stringify({invoices:[]}), headers:{'Content-Type':'application/json'} });
+    const d = await r.json();
+    if (d.status==='ok') setStatus('gasStatus','✅ 接続成功！解析できます','ok');
+    else throw new Error();
+  } catch { setStatus('gasStatus','❌ 接続失敗。URLを確認してください','err'); }
+}
+
+async function toB64(file) {
+  return new Promise((res,rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+async function extract(b64, name) {
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'claude-sonnet-4-20250514', max_tokens:1000,
+      messages:[{role:'user', content:[
+        {type:'document', source:{type:'base64', media_type:'application/pdf', data:b64}},
+        {type:'text', text:`請求書を解析してJSONのみ返してください（説明不要）:
+{"invoice_number":"","invoice_date":"YYYY-MM-DD","due_date":"YYYY-MM-DD","issuer":"","recipient":"","subtotal":0,"tax":0,"total":0,"items":[{"date":"","description":"","quantity":0,"unit_price":0,"amount":0}]}`}
+      ]}]
+    })
+  });
+  const d = await resp.json();
+  const txt = d.content.map(c=>c.text||'').join('').replace(/```json|```/g,'').trim();
+  const p = JSON.parse(txt);
+  p.filename = name;
+  return p;
+}
+
+async function runAll() {
+  const url = document.getElementById('gasUrl').value.trim();
+  if (!url) { setStatus('mainStatus','Apps Script URLを入力してください','err'); return; }
+
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('mainStatus').className = 'status';
+  invoices = [];
+
+  try {
+    for (let i=0; i<files.length; i++) {
+      const pct = Math.round((i/files.length)*70);
+      document.getElementById('progressFill').style.width = pct+'%';
+      document.getElementById('loadingMsg').textContent = `AIで解析中 (${i+1}/${files.length}): ${files[i].name}`;
+      invoices.push(await extract(await toB64(files[i]), files[i].name));
+    }
+
+    document.getElementById('loadingMsg').textContent = 'Google Sheetsへ書き込み中...';
+    document.getElementById('progressFill').style.width = '90%';
+
+    const r = await fetch(url, { method:'POST', body:JSON.stringify({invoices}), headers:{'Content-Type':'application/json'} });
+    const res = await r.json();
+    if (res.status!=='ok') throw new Error(JSON.stringify(res));
+
+    document.getElementById('progressFill').style.width = '100%';
+    document.getElementById('loading').style.display = 'none';
+    renderResults();
+    setStatus('mainStatus', `✅ ${invoices.length}件の請求書をGoogle Sheetsへ書き込みました！`, 'ok');
+  } catch(e) {
+    document.getElementById('loading').style.display = 'none';
+    setStatus('mainStatus', `❌ エラー: ${e.message}`, 'err');
+  }
+}
+
+function fmt(n) { return Number(n).toLocaleString('ja-JP')+'円'; }
+
+function renderResults() {
+  const total = invoices.reduce((s,v)=>s+(v.total||0),0);
+  const tax = invoices.reduce((s,v)=>s+(v.tax||0),0);
+  const items = invoices.reduce((s,v)=>s+(v.items?.length||0),0);
+
+  document.getElementById('statGrid').innerHTML = `
+    <div class="stat"><div class="l">請求書件数</div><div class="v">${invoices.length}</div><div class="s">件</div></div>
+    <div class="stat"><div class="l">請求金額合計</div><div class="v" style="font-size:1rem">${fmt(total)}</div></div>
+    <div class="stat"><div class="l">消費税合計</div><div class="v" style="font-size:1rem">${fmt(tax)}</div></div>
+    <div class="stat"><div class="l">明細件数合計</div><div class="v">${items}</div><div class="s">件</div></div>
+  `;
+
+  document.getElementById('sumTbody').innerHTML = invoices.map(inv=>`<tr>
+    <td>${inv.filename}</td><td class="b">${inv.invoice_number||'—'}</td>
+    <td>${inv.invoice_date||'—'}</td><td>${inv.due_date||'—'}</td>
+    <td>${inv.issuer||'—'}</td>
+    <td class="r">${fmt(inv.subtotal||0)}</td>
+    <td class="r">${fmt(inv.tax||0)}</td>
+    <td class="r b">${fmt(inv.total||0)}</td>
+  </tr>`).join('');
+
+  document.getElementById('detTbody').innerHTML = invoices.flatMap(inv=>
+    (inv.items||[]).map(it=>`<tr>
+      <td class="b">${inv.invoice_number||'—'}</td>
+      <td>${inv.invoice_date||'—'}</td><td>${it.date||'—'}</td>
+      <td>${it.description||'—'}</td>
+      <td class="r">${it.quantity||0}</td>
+      <td class="r">${fmt(it.unit_price||0)}</td>
+      <td class="r">${fmt(it.amount||0)}</td>
+    </tr>`)
+  ).join('');
+
+  document.getElementById('results').style.display = 'block';
+}
+</script>
+</body>
+</html>

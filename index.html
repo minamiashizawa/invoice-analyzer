@@ -223,11 +223,21 @@ window.addEventListener('load', () => {
   if (hash.includes('access_token')) {
     const params = new URLSearchParams(hash.replace('#',''));
     freeeAccessToken = params.get('access_token');
+    // セッションストレージに保存
+    sessionStorage.setItem('freeeToken', freeeAccessToken);
     document.getElementById('freeeLoginArea').style.display = 'none';
     document.getElementById('freeeLoggedIn').style.display = 'block';
-    // 請求書取得ボタンを有効化
     document.getElementById('fetchBtn').disabled = false;
     window.history.replaceState({}, document.title, window.location.pathname);
+  } else {
+    // セッションストレージからトークンを復元
+    const saved = sessionStorage.getItem('freeeToken');
+    if (saved) {
+      freeeAccessToken = saved;
+      document.getElementById('freeeLoginArea').style.display = 'none';
+      document.getElementById('freeeLoggedIn').style.display = 'block';
+      document.getElementById('fetchBtn').disabled = false;
+    }
   }
 });
   const token = document.getElementById('freeeToken').value.trim();

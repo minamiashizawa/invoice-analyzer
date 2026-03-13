@@ -8,10 +8,10 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; min-height: 100vh; }
 nav { background: white; border-bottom: 1px solid #e2e8f0; padding: 0 32px; display: flex; align-items: center; height: 60px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-.logo { font-size: 1.25rem; font-weight: 800; color: #1d4ed8; display: flex; align-items: center; gap: 8px; }
+.logo { font-size: 1.25rem; font-weight: 800; color: #1d4ed8; }
 .logo span { color: #1e293b; }
 .hero { background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #0ea5e9 100%); color: white; padding: 50px 32px; text-align: center; }
-.hero h1 { font-size: 2rem; font-weight: 800; margin-bottom: 12px; line-height: 1.2; }
+.hero h1 { font-size: 2rem; font-weight: 800; margin-bottom: 12px; }
 .hero p { font-size: 0.95rem; opacity: 0.9; max-width: 500px; margin: 0 auto 24px; line-height: 1.7; }
 .hero-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 .badge { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 5px 14px; font-size: 0.8rem; }
@@ -25,8 +25,8 @@ nav { background: white; border-bottom: 1px solid #e2e8f0; padding: 0 32px; disp
 .card-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
 .step-badge { background: #1d4ed8; color: white; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; }
 label { font-size: 0.82rem; color: #475569; font-weight: 600; display: block; margin-bottom: 4px; }
-input[type=text], input[type=password] { width: 100%; padding: 10px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 0.88rem; outline: none; margin-bottom: 4px; }
-input:focus { border-color: #2563eb; }
+input[type=text], input[type=password], select { width: 100%; padding: 10px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 0.88rem; outline: none; margin-bottom: 4px; }
+input:focus, select:focus { border-color: #2563eb; }
 .hint { font-size: 0.74rem; color: #94a3b8; margin-bottom: 12px; }
 .upload-area { border: 2px dashed #93c5fd; border-radius: 10px; padding: 32px 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: #f8fafc; }
 .upload-area:hover, .upload-area.drag { border-color: #1d4ed8; background: #eff6ff; }
@@ -40,8 +40,11 @@ input:focus { border-color: #2563eb; }
 .btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 22px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.88rem; font-weight: 600; transition: all 0.2s; }
 .btn-blue { background: #1d4ed8; color: white; }
 .btn-blue:hover:not(:disabled) { background: #1e40af; }
+.btn-green { background: #059669; color: white; }
+.btn-green:hover:not(:disabled) { background: #047857; }
 .btn-lg { padding: 13px 28px; font-size: 0.95rem; width: 100%; justify-content: center; }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-row { display: flex; gap: 10px; margin-bottom: 10px; }
 .status { padding: 10px 14px; border-radius: 8px; font-size: 0.84rem; margin-top: 10px; display: none; }
 .status.info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; display: block; }
 .status.ok { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; display: block; }
@@ -67,45 +70,79 @@ tr:last-child td { border-bottom: none; }
 tr:hover td { background: #f8fafc; }
 .r { text-align: right; }
 .b { font-weight: 700; color: #1d4ed8; }
-.setup-step { display: flex; gap: 14px; margin-bottom: 18px; }
-.setup-num { background: #1d4ed8; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
-.setup-body p { font-size: 0.86rem; color: #475569; line-height: 1.6; margin-bottom: 8px; }
-.code-wrap { background: #0f172a; border-radius: 10px; padding: 16px; position: relative; }
-.code-wrap pre { color: #e2e8f0; font-family: monospace; font-size: 0.76rem; white-space: pre; overflow-x: auto; line-height: 1.6; }
-.copy-btn { position: absolute; top: 10px; right: 10px; background: #334155; color: #94a3b8; border: none; border-radius: 6px; padding: 4px 10px; font-size: 0.72rem; cursor: pointer; }
-.copy-btn:hover { background: #475569; color: white; }
 footer { background: #1e293b; color: #94a3b8; text-align: center; padding: 24px; font-size: 0.8rem; }
 </style>
 </head>
 <body>
-<nav>
-  <div class="logo">📄 Invoice<span>AI</span></div>
-</nav>
+<nav><div class="logo">📄 Invoice<span>AI</span></div></nav>
 <div class="hero">
   <h1>請求書を、AIが瞬時に解析<br>Google Sheetsへ自動書き込み</h1>
-  <p>PDFをアップロードするだけ。AIが金額・明細・日付を自動抽出し、スプレッドシートで比較・管理できます。</p>
+  <p>FreeeまたはPDFから請求書データを取得し、スプレッドシートで比較・管理できます。</p>
   <div class="hero-badges">
     <div class="badge">🤖 AI自動抽出</div>
     <div class="badge">📊 複数PDF対応</div>
     <div class="badge">✅ Google Sheets連携</div>
-    <div class="badge">🆓 無料</div>
+    <div class="badge">🟢 Freee連携</div>
   </div>
 </div>
+
 <div class="main">
   <div class="tabs">
-    <button class="tab active" onclick="showTab('analyze')">🔍 解析する</button>
-    <button class="tab" onclick="showTab('setup')">⚙️ 初回設定</button>
+    <button class="tab active" onclick="showTab('freee')">🟢 Freeeから取得</button>
+    <button class="tab" onclick="showTab('pdf')">📄 PDFをアップロード</button>
   </div>
 
-  <div class="tab-panel active" id="tab-analyze">
+  <!-- FREEE TAB -->
+  <div class="tab-panel active" id="tab-freee">
     <div class="card">
-      <div class="card-title"><div class="step-badge">1</div> APIキーを入力</div>
-      <label>Anthropic APIキー</label>
+      <div class="card-title"><div class="step-badge">1</div> Freee APIキー</div>
+      <label>アクセストークン</label>
+      <input type="password" id="freeeToken" value="GsS3fA5n07vYNv5H5y-E1zi81Ou_x3Cem1YDOXE5L8c">
+      <p class="hint">Freee Developer Consoleで取得したアクセストークン</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="step-badge">2</div> 請求書を取得する期間</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label>開始日</label>
+          <input type="text" id="startDate" placeholder="2026-01-01">
+        </div>
+        <div>
+          <label>終了日</label>
+          <input type="text" id="endDate" placeholder="2026-03-31">
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:8px">
+        <button class="btn btn-green" onclick="fetchFreee()">🟢 Freeeから請求書を取得</button>
+      </div>
+      <div class="status" id="freeeStatus"></div>
+    </div>
+    <div class="card" id="freeeResultCard" style="display:none">
+      <div class="card-title"><div class="step-badge">3</div> 取得した請求書</div>
+      <div class="tbl-wrap" style="box-shadow:none;margin:0">
+        <table>
+          <thead><tr>
+            <th>請求書番号</th><th>請求日</th><th>取引先</th><th>金額</th><th>ステータス</th>
+          </tr></thead>
+          <tbody id="freeeList"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:14px">
+        <button class="btn btn-blue btn-lg" onclick="sendFreeeToSheets()">
+          📊 Google Sheetsへ書き込む
+        </button>
+      </div>
+      <div class="status" id="freeeSheetStatus"></div>
+    </div>
+  </div>
+
+  <!-- PDF TAB -->
+  <div class="tab-panel" id="tab-pdf">
+    <div class="card">
+      <div class="card-title"><div class="step-badge">1</div> Anthropic APIキー</div>
+      <label>APIキー</label>
       <input type="password" id="apiKey" placeholder="sk-ant-...">
       <p class="hint">console.anthropic.com で取得したAPIキー</p>
-      <label>Apps Script URL</label>
-      <input type="text" id="gasUrl" value="https://script.google.com/macros/s/AKfycbz3Yr98fDFQwJuSwzoysNXTj1hJzcs-cg1e8hWkK6FSrEK90INgJ__r8TpGMwPG0fq1ag/exec" readonly style="background:#f1f5f9;color:#64748b;">
-      <p class="hint">設定済み</p>
     </div>
     <div class="card">
       <div class="card-title"><div class="step-badge">2</div> 請求書PDFをアップロード</div>
@@ -148,93 +185,94 @@ footer { background: #1e293b; color: #94a3b8; text-align: center; padding: 24px;
       </div>
     </div>
   </div>
-
-  <div class="tab-panel" id="tab-setup">
-    <div class="card">
-      <div class="card-title">⚙️ Google Sheetsへの接続設定（初回のみ）</div>
-      <div class="setup-step">
-        <div class="setup-num">1</div>
-        <div class="setup-body"><p>Google Sheetsを開き、<strong>「拡張機能」→「Apps Script」</strong>を選択します。</p></div>
-      </div>
-      <div class="setup-step">
-        <div class="setup-num">2</div>
-        <div class="setup-body">
-          <p>既存のコードを全部削除して以下を貼り付け、<strong>Ctrl+S で保存</strong>します。</p>
-          <div class="code-wrap">
-            <button class="copy-btn" onclick="copyCode()">コピー</button>
-            <pre id="gasCode">function doPost(e) {
-  try {
-    const data = JSON.parse(e.postData.contents);
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-
-    let sumSheet = ss.getSheetByName("請求書サマリー")
-      || ss.insertSheet("請求書サマリー");
-    if (sumSheet.getLastRow() === 0) {
-      sumSheet.appendRow(["ファイル名","請求書番号","請求日","入金期日",
-        "発行元","宛先","小計","消費税","請求金額"]);
-    }
-
-    let detSheet = ss.getSheetByName("明細一覧")
-      || ss.insertSheet("明細一覧");
-    if (detSheet.getLastRow() === 0) {
-      detSheet.appendRow(["請求書番号","請求日","取引日",
-        "摘要","数量","単価","明細金額"]);
-    }
-
-    for (const inv of data.invoices) {
-      sumSheet.appendRow([
-        inv.filename, inv.invoice_number, inv.invoice_date,
-        inv.due_date, inv.issuer, inv.recipient,
-        inv.subtotal, inv.tax, inv.total
-      ]);
-      for (const item of (inv.items || [])) {
-        detSheet.appendRow([
-          inv.invoice_number, inv.invoice_date, item.date,
-          item.description, item.quantity, item.unit_price, item.amount
-        ]);
-      }
-    }
-
-    return ContentService
-      .createTextOutput(JSON.stringify({status:"ok"}))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch(err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({status:"error", message:err.toString()}))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-function doGet(e) {
-  return ContentService
-    .createTextOutput(JSON.stringify({status:"ok"}))
-    .setMimeType(ContentService.MimeType.JSON);
-}</pre>
-          </div>
-        </div>
-      </div>
-      <div class="setup-step">
-        <div class="setup-num">3</div>
-        <div class="setup-body"><p>「デプロイ」→「新しいデプロイ」→ 種類：<strong>ウェブアプリ</strong>、アクセス：<strong>全員（Anyone）</strong> → デプロイ</p></div>
-      </div>
-      <div class="setup-step">
-        <div class="setup-num">4</div>
-        <div class="setup-body"><p>表示された <strong>Web app URL</strong> をコピーして「解析する」タブのURL欄に貼り付けます。</p></div>
-      </div>
-    </div>
-  </div>
 </div>
-<footer>InvoiceAI — PDFをアップロードするだけで請求書を自動解析・比較</footer>
+<footer>InvoiceAI — Freee・PDFから請求書を自動解析・比較</footer>
 
 <script>
-let files = [], invoices = [];
+const GAS_URL = "https://script.google.com/macros/s/AKfycbz3Yr98fDFQwJuSwzoysNXTj1hJzcs-cg1e8hWkK6FSrEK90INgJ__r8TpGMwPG0fq1ag/exec";
+const COMPANY_ID = "9020711429";
+let files = [], invoices = [], freeeInvoices = [];
 
 function showTab(name) {
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['analyze','setup'][i]===name));
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['freee','pdf'][i]===name));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
 }
 
+// ---- FREEE ----
+async function fetchFreee() {
+  const token = document.getElementById('freeeToken').value.trim();
+  const start = document.getElementById('startDate').value.trim();
+  const end = document.getElementById('endDate').value.trim();
+  if (!token) { setStatus('freeeStatus','アクセストークンを入力してください','err'); return; }
+
+  setStatus('freeeStatus','Freeeから取得中...','info');
+  try {
+    let url = `https://api.freee.co.jp/api/1/invoices?company_id=${COMPANY_ID}&limit=100`;
+    if (start) url += `&issue_date_start=${start}`;
+    if (end) url += `&issue_date_end=${end}`;
+
+    const r = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+    });
+    const d = await r.json();
+    if (d.errors || !d.invoices) throw new Error(JSON.stringify(d.errors || d));
+
+    freeeInvoices = d.invoices;
+    setStatus('freeeStatus', `✅ ${freeeInvoices.length}件の請求書を取得しました`, 'ok');
+    renderFreeeList();
+  } catch(e) {
+    setStatus('freeeStatus', `❌ エラー: ${e.message}`, 'err');
+  }
+}
+
+function renderFreeeList() {
+  document.getElementById('freeeList').innerHTML = freeeInvoices.map(inv => `<tr>
+    <td class="b">${inv.invoice_number||'—'}</td>
+    <td>${inv.issue_date||'—'}</td>
+    <td>${inv.partner_name||'—'}</td>
+    <td class="r">${fmt(inv.total_amount||0)}</td>
+    <td>${inv.invoice_status||'—'}</td>
+  </tr>`).join('');
+  document.getElementById('freeeResultCard').style.display = 'block';
+}
+
+async function sendFreeeToSheets() {
+  setStatus('freeeSheetStatus','Google Sheetsへ書き込み中...','info');
+  try {
+    const invoices = freeeInvoices.map(inv => ({
+      filename: `Freee_${inv.invoice_number||inv.id}`,
+      invoice_number: inv.invoice_number||'',
+      invoice_date: inv.issue_date||'',
+      due_date: inv.payment_date||'',
+      issuer: 'eLife株式会社',
+      recipient: inv.partner_name||'',
+      subtotal: inv.sub_total||0,
+      tax: inv.tax_amount||0,
+      total: inv.total_amount||0,
+      items: (inv.invoice_lines||[]).map(line => ({
+        date: inv.issue_date||'',
+        description: line.description||'',
+        quantity: line.quantity||0,
+        unit_price: line.unit_price||0,
+        amount: line.amount||0
+      }))
+    }));
+
+    await fetch(GAS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({invoices})
+    });
+
+    setStatus('freeeSheetStatus', `✅ ${invoices.length}件をGoogle Sheetsへ書き込みました！`, 'ok');
+  } catch(e) {
+    setStatus('freeeSheetStatus', `❌ エラー: ${e.message}`, 'err');
+  }
+}
+
+// ---- PDF ----
 const dz = document.getElementById('dropZone');
 dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
 dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
@@ -256,14 +294,6 @@ function renderChips() {
 function setStatus(id, msg, type) {
   const el = document.getElementById(id);
   el.textContent = msg; el.className = 'status '+type;
-}
-
-function copyCode() {
-  navigator.clipboard.writeText(document.getElementById('gasCode').textContent).then(() => {
-    const btn = document.querySelector('.copy-btn');
-    btn.textContent = '✅ コピー済み';
-    setTimeout(() => btn.textContent = 'コピー', 2000);
-  });
 }
 
 async function toB64(file) {
@@ -303,9 +333,7 @@ async function extract(b64, name, apiKey) {
 
 async function runAll() {
   const apiKey = document.getElementById('apiKey').value.trim();
-  const gasUrl = document.getElementById('gasUrl').value.trim();
   if (!apiKey) { setStatus('mainStatus','APIキーを入力してください','err'); return; }
-  if (!gasUrl) { setStatus('mainStatus','Apps Script URLを入力してください','err'); return; }
 
   document.getElementById('loading').style.display = 'block';
   document.getElementById('results').style.display = 'none';
@@ -323,9 +351,8 @@ async function runAll() {
     document.getElementById('loadingMsg').textContent = 'Google Sheetsへ書き込み中...';
     document.getElementById('progressFill').style.width = '90%';
 
-    await fetch(gasUrl, {
-      method: 'POST',
-      mode: 'no-cors',
+    await fetch(GAS_URL, {
+      method: 'POST', mode: 'no-cors',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({invoices})
     });

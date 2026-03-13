@@ -95,10 +95,13 @@ footer { background: #1e293b; color: #94a3b8; text-align: center; padding: 24px;
   <!-- FREEE TAB -->
   <div class="tab-panel active" id="tab-freee">
     <div class="card">
-      <div class="card-title"><div class="step-badge">1</div> Freee APIキー</div>
-      <label>アクセストークン</label>
-      <input type="password" id="freeeToken" value="GsS3fA5n07vYNv5H5y-E1zi81Ou_x3Cem1YDOXE5L8c">
-      <p class="hint">Freee Developer Consoleで取得したアクセストークン</p>
+      <div class="card-title"><div class="step-badge">1</div> Freeeにログイン</div>
+      <div id="freeeLoginArea">
+        <button class="btn btn-green btn-lg" onclick="loginFreee()">🟢 Freeeでログイン</button>
+      </div>
+      <div id="freeeLoggedIn" style="display:none">
+        <div class="status ok" style="display:block">✅ Freeeにログイン済み</div>
+      </div>
     </div>
     <div class="card">
       <div class="card-title"><div class="step-badge">2</div> 請求書を取得する期間</div>
@@ -191,6 +194,8 @@ footer { background: #1e293b; color: #94a3b8; text-align: center; padding: 24px;
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbz3Yr98fDFQwJuSwzoysNXTj1hJzcs-cg1e8hWkK6FSrEK90INgJ__r8TpGMwPG0fq1ag/exec";
 const COMPANY_ID = "9020711429";
+const CLIENT_ID = "657848771310622";
+const REDIRECT_URI = "https://minamiashizawa.github.io/invoice-analyzer/";
 let files = [], invoices = [], freeeInvoices = [];
 
 function showTab(name) {
@@ -199,8 +204,25 @@ function showTab(name) {
   document.getElementById('tab-'+name).classList.add('active');
 }
 
-// ---- FREEE ----
-async function fetchFreee() {
+// OAuth2
+let freeeAccessToken = null;
+
+function loginFreee() {
+  const authUrl = `https://accounts.secure.freee.co.jp/public_api/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&prompt=select_company`;
+  window.location.href = authUrl;
+}
+
+// ページ読み込み時にトークンをURLから取得
+window.addEventListener('load', () => {
+  const hash = window.location.hash;
+  if (hash.includes('access_token')) {
+    const params = new URLSearchParams(hash.replace('#',''));
+    freeeAccessToken = params.get('access_token');
+    document.getElementById('freeeLoginArea').style.display = 'none';
+    document.getElementById('freeeLoggedIn').style.display = 'block';
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+});
   const token = document.getElementById('freeeToken').value.trim();
   const start = document.getElementById('startDate').value.trim();
   const end = document.getElementById('endDate').value.trim();

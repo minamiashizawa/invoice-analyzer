@@ -97,7 +97,7 @@ footer { background: #1e293b; color: #94a3b8; text-align: center; padding: 24px;
     <div class="card">
       <div class="card-title"><div class="step-badge">1</div> Freeeにログイン</div>
       <div id="freeeLoginArea">
-        <button class="btn btn-green btn-lg" onclick="loginFreee()" style="cursor:pointer">🟢 Freeeでログイン</button>
+        <a href="#" class="btn btn-green btn-lg" id="freeeLoginBtn" style="text-decoration:none;display:flex;justify-content:center">🟢 Freeeでログイン</a>
       </div>
       <div id="freeeLoggedIn" style="display:none">
         <div class="status ok" style="display:block">✅ Freeeにログイン済み</div>
@@ -214,6 +214,11 @@ function loginFreee() {
 
 // ページ読み込み時にトークンをURLから取得
 window.addEventListener('load', () => {
+  // ログインボタンにURLをセット
+  const authUrl = `https://accounts.secure.freee.co.jp/public_api/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&prompt=select_company`;
+  document.getElementById('freeeLoginBtn').href = authUrl;
+
+  // ページ読み込み時にトークンをURLから取得
   const hash = window.location.hash;
   if (hash.includes('access_token')) {
     const params = new URLSearchParams(hash.replace('#',''));

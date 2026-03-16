@@ -232,7 +232,7 @@ async function fetchFreee() {
   const end = document.getElementById('endDate').value.trim();
   setStatus('freeeStatus','Freeeから取得中...','info');
   try {
-    let url = `https://api.freee.co.jp/api/1/invoices?company_id=${COMPANY_ID}&limit=100`;
+    let url = `https://invoice.freee.co.jp/api/1/invoices?company_id=${COMPANY_ID}&limit=100`;
     if (start) url += `&issue_date_start=${start}`;
     if (end) url += `&issue_date_end=${end}`;
 

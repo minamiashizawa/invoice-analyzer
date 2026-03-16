@@ -232,18 +232,18 @@ async function fetchFreee() {
   const end = document.getElementById('endDate').value.trim();
   setStatus('freeeStatus','Freeeから取得中...','info');
   try {
-    let url = `https://api.freee.co.jp/api/1/invoices?company_id=${COMPANY_ID}&limit=100`;
-    if (start) url += `&issue_date_start=${start}`;
-    if (end) url += `&issue_date_end=${end}`;
+    let url = `https://api.freee.co.jp/api/1/deals?company_id=${COMPANY_ID}&limit=100`;
+    if (start) url += `&start_issue_date=${start}`;
+    if (end) url += `&end_issue_date=${end}`;
 
     const r = await fetch(url, {
       headers: { 'Authorization': `Bearer ${freeeAccessToken}`, 'Content-Type': 'application/json' }
     });
     const d = await r.json();
-    if (d.errors || !d.invoices) throw new Error(JSON.stringify(d.errors || d));
+    if (d.errors || !d.deals) throw new Error(JSON.stringify(d.errors || d));
 
-    freeeInvoices = d.invoices;
-    setStatus('freeeStatus', `✅ ${freeeInvoices.length}件の請求書を取得しました`, 'ok');
+    freeeInvoices = d.deals;
+    setStatus('freeeStatus', `✅ ${freeeInvoices.length}件の取引を取得しました`, 'ok');
     renderFreeeList();
   } catch(e) {
     setStatus('freeeStatus', `❌ エラー: ${e.message}`, 'err');
@@ -251,12 +251,12 @@ async function fetchFreee() {
 }
 
 function renderFreeeList() {
-  document.getElementById('freeeList').innerHTML = freeeInvoices.map(inv => `<tr>
-    <td class="b">${inv.invoice_number||'—'}</td>
-    <td>${inv.issue_date||'—'}</td>
-    <td>${inv.partner_name||'—'}</td>
-    <td class="r">${fmt(inv.total_amount||0)}</td>
-    <td>${inv.invoice_status||'—'}</td>
+  document.getElementById('freeeList').innerHTML = freeeInvoices.map(deal => `<tr>
+    <td class="b">${deal.id||'—'}</td>
+    <td>${deal.issue_date||'—'}</td>
+    <td>${deal.partner_name||'—'}</td>
+    <td class="r">${fmt(deal.amount||0)}</td>
+    <td>${deal.type||'—'}</td>
   </tr>`).join('');
   document.getElementById('freeeResultCard').style.display = 'block';
 }
